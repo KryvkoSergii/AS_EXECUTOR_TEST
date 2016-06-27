@@ -33,6 +33,7 @@ public class Executor {
     private String password = "password";
     private PasswordEncoder pe = new BCryptPasswordEncoder(10);
     ThreadGroup threadGroup = new ThreadGroup("ThreadGroup");
+    private String host = "http://localhost:8082/AgentScripting";
 
     static {
         System.out.println("starting executor...");
@@ -51,8 +52,8 @@ public class Executor {
     private AdmRole checkRole() {
         AdmRole testRole;
         em.getTransaction().begin();
-        query = em.createQuery("SELECT r FROM AdmRole r where r.name=:name", AdmRole.class);
-        em.setProperty("name", tempRoleName);
+        query = em.createQuery("SELECT r FROM AdmRole r where r.name=?1", AdmRole.class);
+        query.setParameter(1, tempRoleName);
         ArrayList<AdmRole> tmp = (ArrayList<AdmRole>) query.getResultList();
         em.getTransaction().commit();
         if (tmp.isEmpty()) {
@@ -76,8 +77,8 @@ public class Executor {
         Unit unit;
         int i = 0;
         for (String l : users.keySet()){
-            System.out.printf("User %s add",l);
-            unit = new Unit(threadGroup,l,users.get(l));
+            System.out.printf("%s added ",l);
+            unit = new Unit(threadGroup,l,users.get(l),host);
             i++;
         }
         System.out.printf("Created %s threads"+'\n',i);
