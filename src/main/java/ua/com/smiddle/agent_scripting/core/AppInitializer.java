@@ -1,44 +1,23 @@
 package ua.com.smiddle.agent_scripting.core;
 
 
-import org.springframework.core.env.Environment;
-
-import java.util.Arrays;
+import ua.com.smiddle.agent_scripting.core.model.json.executor.ExecutorRequest;
 
 /**
  * Created by srg on 27.06.16.
  */
 
 public class AppInitializer {
-//
-//    @Autowired
-//    private static Environment environment;
 
     public static void main(String[] args) {
-
-//        ApplicationContext ctx = SpringApplication.run(AppInitializer.class, args);
         Executor e = new Executor();
+        e.setUserCount(1);
+        e.setDEBUG_LEVEL(4);
+        e.setHost("http://172.22.2.34:80/AgentScripting");
+        e.setScriptID(9L);
         e.prepare();
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        }
-        e.removeUsers();
-//
-//        System.out.println("Let's inspect the beans provided by Spring Boot:");
-//
-//        String[] beanNames = ctx.getBeanDefinitionNames();
-//        Arrays.sort(beanNames);
-//        for (String beanName : beanNames) {
-//            System.out.println(beanName);
-//        }
-//        ctx.getBean("Executor");
+        e.execute();
+//        System.exit(0);
+//        e.removeUsers();
     }
-
-//    @Bean
-//    public static Executor getExecutor(){
-//        System.out.println(environment.getProperty("host_url"));
-//        return new Executor();
-//    }
 }

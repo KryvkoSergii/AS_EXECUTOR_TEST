@@ -26,13 +26,13 @@
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect"/> <!-- Полный путь к классу описывающего диалект общения с типом БД -->
             <property name="hibernate.hbm2ddl.auto" value="update"/>    <!-- Обновление схемы в БД каждый раз при внесении изменений структуры таблиц -->
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
-            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/AGENT_SCRIPTING?useSSL=false"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://172.22.2.34:3306/AGENT_SCRIPTING?useSSL=false"/>
             <!--<property name="javax.persistence.jdbc.user" value="oam"/>-->
             <!--<property name="javax.persistence.jdbc.password" value="11091984oam"/>-->
-            <property name="javax.persistence.jdbc.user" value="msense"/>
-            <property name="javax.persistence.jdbc.password" value="ms2014"/>
-            <!--<property name="javax.persistence.jdbc.user" value="developer"/>-->
-            <!--<property name="javax.persistence.jdbc.password" value="Smidle098adm!"/>-->
+            <!--<property name="javax.persistence.jdbc.user" value="msense"/>-->
+            <!--<property name="javax.persistence.jdbc.password" value="ms2014"/>-->
+            <property name="javax.persistence.jdbc.user" value="developer"/>
+            <property name="javax.persistence.jdbc.password" value="Smidle098adm!"/>
         </properties>
     </persistence-unit>
 </persistence>
