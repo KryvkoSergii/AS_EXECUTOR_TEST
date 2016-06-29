@@ -1,6 +1,7 @@
 package ua.com.smiddle.agent_scripting.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
@@ -11,7 +12,6 @@ import ua.com.smiddle.agent_scripting.core.model.JacksonUtil;
 import ua.com.smiddle.agent_scripting.core.model.json.executor.ExecutorRequest;
 
 import java.util.Base64;
-import java.util.Base64.Decoder;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -28,6 +28,7 @@ public class Unit extends Thread implements Serializable {
     private PostMethod nextPostMethod;
     private int DEBUG_LEVEL = -1;
     private StringRequestEntity re;
+    private int iteartion = 0;
 
 
     //Constructors
@@ -63,34 +64,38 @@ public class Unit extends Thread implements Serializable {
             if (DEBUG_LEVEL > 2) printHeaders(startPostMethod, true);
             executeMethod(startPostMethod);
             String s = startPostMethod.getResponseBodyAsString();
-            if ((startPostMethod.getResponseHeader("RETURNED_MESSAGE") != null) && (DEBUG_LEVEL > 0)) {
-                String value = startPostMethod.getResponseHeader("RETURNED_MESSAGE").getValue();
-                System.out.println("RETURNED_MESSAGE: " + Base64.Decoder.decode(value));
+            String value = null;
+            if ((DEBUG_LEVEL > 0) && (startPostMethod.getResponseHeader("RETURNED_MESSAGE") != null) && (startPostMethod.getResponseHeader("RETURNED_MESSAGE").getValue() != null)) {
+                value = startPostMethod.getResponseHeader("RETURNED_MESSAGE").getValue();
+                System.out.printf("RETURNED_MESSAGE: %s" + '\n', StringUtils.newStringUtf8(Base64.getDecoder().decode(value)));
             }
             if (DEBUG_LEVEL > 1) System.out.printf("UserID=%s Response StartMethod: %s" + '\n', user.getId(), s);
             if (DEBUG_LEVEL > 2) printHeaders(startPostMethod, false);
             startPostMethod.releaseConnection();
-
+            iteartion++;
             if (this.isInterrupted()) return;
             int index = 0;
+            nextPostMethod.setParameter("Content-Type", "application/json");
             while (s != null && !s.trim().isEmpty()) {
-                nextPostMethod.setParameter("Content-Type", "application/json");
                 nextPostMethod.setRequestEntity(re);
                 if (this.isInterrupted()) break;
                 executeMethod(nextPostMethod);
                 s = nextPostMethod.getResponseBodyAsString();
-                if ((nextPostMethod.getResponseHeader("RETURNED_MESSAGE") != null) && (DEBUG_LEVEL > 0))
-                    System.out.println("RETURNED_MESSAGE: " + decoder.decodeBuffer(nextPostMethod.getResponseHeader("RETURNED_MESSAGE").toString()));
+                if ((DEBUG_LEVEL > 1) && (nextPostMethod.getResponseHeader("RETURNED_MESSAGE") != null) && (nextPostMethod.getResponseHeader("RETURNED_MESSAGE").getValue() != null)) {
+                    value = nextPostMethod.getResponseHeader("RETURNED_MESSAGE").getValue();
+                    System.out.printf("RETURNED_MESSAGE: %s" + '\n', StringUtils.newStringUtf8(Base64.getDecoder().decode(value)));
+                }
+                iteartion++;
                 if (DEBUG_LEVEL > 1) System.out.printf("UserID=%s Response NextMethod: %s" + '\n', user.getId(), s);
-
                 if (nextPostMethod.getStatusCode() != 200) index++;
                 if (index > 0) break;
+
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         startPostMethod.releaseConnection();
-        if (DEBUG_LEVEL > 0) System.out.printf("UserID=%s exit" + '\n', user.getId());
+        if (DEBUG_LEVEL > 0) System.out.printf("UserID=%s exit, responces=%s" + '\n', user.getId(), iteartion);
     }
 
     private void setCredentials() {
