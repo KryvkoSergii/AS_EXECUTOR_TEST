@@ -85,7 +85,7 @@ public class Executor {
     //Methods
     private void initLoadingUsers() {
         em.getTransaction().begin();
-        ArrayList<AdmUser> tmp = (ArrayList<AdmUser>) em.createQuery("SELECT u FROM AdmUser u where u.login like 'user-%'", AdmUser.class).getResultList();
+        ArrayList<AdmUser> tmp = (ArrayList<AdmUser>) em.createQuery("SELECT u FROM AdmUser u where u.login like 'user-%' and u.deleted=false", AdmUser.class).getResultList();
         em.getTransaction().commit();
         for (AdmUser u : tmp) {
             users.put(u.getLogin(), u);
@@ -154,9 +154,8 @@ public class Executor {
                 users.remove(i.next());
                 if ((users.size() == userCount)) break;
             }
-        }
-        else if (users.size() == userCount){}
-        else {
+        } else if (users.size() == userCount) {
+        } else {
             // привести список пользователей к нужному размеру (добавить недостающее)
             while (users.size() < userCount) {
                 prepareUser(role, groupList);
@@ -188,6 +187,7 @@ public class Executor {
             }
         }
         System.out.println("Executing stopping...");
+        analyse();
     }
 
     //удаление пользователей
@@ -233,5 +233,31 @@ public class Executor {
 
         users.put(user.getLogin(), user);
         return user;
+    }
+
+    private void analyse() {
+        List<Long> l = new ArrayList<>();
+        List<Long> sums = new ArrayList<>();
+        Long generalSum = 0L;
+        System.out.println("start analysing");
+        int j = 0;
+        for (Unit u : collection.values()) {
+            Long sum = 0L;
+            Long delta =0L;
+            List<Long> time = u.getPerfomanceList();
+            l.clear();
+            int i = 0;
+            while (i < time.size()) {
+                delta = time.get(i + 1) - time.get(i);
+                l.add(delta);
+                i += 2;
+                sum += delta;
+            }
+            sums.add(sum);
+            generalSum += sum;
+            System.out.printf("%s. UserID=%s, sum=%s ms. delta(ms)=%s" + '\n',++j, u.getUser().getId(), sum, Arrays.toString(l.toArray(new Long[l.size()])));
+        }
+        System.out.printf("Average: %s ms"+'\n', generalSum/sums.size());
+        System.out.println("stop analysing");
     }
 }

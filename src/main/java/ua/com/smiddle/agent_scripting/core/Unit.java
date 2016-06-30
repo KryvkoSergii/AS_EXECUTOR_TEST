@@ -11,10 +11,12 @@ import ua.com.smiddle.agent_scripting.core.model.AdmUser;
 import ua.com.smiddle.agent_scripting.core.model.JacksonUtil;
 import ua.com.smiddle.agent_scripting.core.model.json.executor.ExecutorRequest;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 /**
  * Created by srg on 27.06.16.
@@ -29,6 +31,7 @@ public class Unit extends Thread implements Serializable {
     private int DEBUG_LEVEL = -1;
     private StringRequestEntity re;
     private int iteartion = 0;
+    private List<Long> perfomanceList = new ArrayList<>();
 
 
     //Constructors
@@ -50,18 +53,33 @@ public class Unit extends Thread implements Serializable {
 
 
     //Getters and setters
+    public List<Long> getPerfomanceList() {
+        return perfomanceList;
+    }
 
+    public void setPerfomanceList(List<Long> perfomanceList) {
+        this.perfomanceList = perfomanceList;
+    }
+
+    public AdmUser getUser() {
+        return user;
+    }
+
+    public void setUser(AdmUser user) {
+        this.user = user;
+    }
 
     //Methods
     @Override
+    @SuppressWarnings(value = "all")
     public void run() {
         if (DEBUG_LEVEL > 0) System.out.printf("Starting running. UserID=%s" + '\n', user.getId());
         try {
             startPostMethod.setRequestHeader("Content-Type", "application/json");
             startPostMethod.setRequestHeader("Accept", "*/*");
             startPostMethod.setRequestEntity(re);
-
             if (DEBUG_LEVEL > 2) printHeaders(startPostMethod, true);
+
             executeMethod(startPostMethod);
             String s = startPostMethod.getResponseBodyAsString();
             String value = null;
@@ -106,12 +124,17 @@ public class Unit extends Thread implements Serializable {
 
     }
 
+    @SuppressWarnings(value = "all")
     private String executeMethod(PostMethod method) {
         String responce = null;
         try {
+            //sending start
+            perfomanceList.add(System.currentTimeMillis());
             client.executeMethod(method);
             if (DEBUG_LEVEL > 1) System.out.printf("UserID=%s. Code: %s " + '\n', user.getId(), method.getStatusCode());
-            responce = method.getResponseBodyAsString();
+//            responce = method.getResponseBodyAsString();
+            //sending start
+            perfomanceList.add(System.currentTimeMillis());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -141,7 +164,7 @@ public class Unit extends Thread implements Serializable {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        System.out.println(re.getContent());
+        if (DEBUG_LEVEL>2) System.out.println(re.getContent());
         return re;
     }
 
