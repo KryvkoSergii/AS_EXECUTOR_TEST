@@ -255,7 +255,7 @@ public class Executor {
             }
             sums.add(sum);
             generalSum += sum;
-            System.out.printf("%s. UserID=%s, sum=%s ms. delta(ms)=%s" + '\n',++j, u.getUser().getId(), sum, Arrays.toString(l.toArray(new Long[l.size()])));
+            System.out.printf("%04d. UserID=%s, sum=%s ms. delta(ms)=%s" + '\n',++j, u.getUser().getId(), sum, Arrays.toString(l.toArray(new Long[l.size()])));
         }
         System.out.printf("Average: %s ms"+'\n', generalSum/sums.size());
         System.out.println("stop analysing");
